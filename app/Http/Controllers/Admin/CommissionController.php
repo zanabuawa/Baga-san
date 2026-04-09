@@ -29,12 +29,18 @@ class CommissionController extends Controller
     public function update(Request $request, Commission $commission)
     {
         $request->validate([
-            'status' => 'required|in:pending,in_progress,delivered,paid',
-            'price'  => 'nullable|numeric|min:0',
-            'notes'  => 'nullable|string',
+            'status'      => 'required|in:pending,in_progress,delivered,paid',
+            'is_priority' => 'boolean',
+            'price'       => 'nullable|numeric|min:0',
+            'notes'       => 'nullable|string',
         ]);
 
-        $commission->update($request->only('status', 'price', 'notes'));
+        $commission->update([
+            'status'      => $request->status,
+            'is_priority' => $request->boolean('is_priority'),
+            'price'       => $request->price,
+            'notes'       => $request->notes,
+        ]);
 
         return redirect()->route('admin.commissions.index')
             ->with('success', 'Comisión actualizada correctamente.');
@@ -84,6 +90,13 @@ public function store(Request $request)
 
         return redirect()->route('admin.commissions.index')
             ->with('success', 'Comisión creada correctamente.');
+    }
+
+    public function togglePriority(Commission $commission)
+    {
+        $commission->update(['is_priority' => ! $commission->is_priority]);
+
+        return back()->with('success', 'Prioridad actualizada correctamente.');
     }
 
     public function create()

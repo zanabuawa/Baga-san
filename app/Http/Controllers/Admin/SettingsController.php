@@ -26,6 +26,9 @@ class SettingsController extends Controller
             'delivery_time'      => 'required|string|max:255',
             'contact_email'      => 'nullable|email',
             'commission_slots'   => 'required|integer|min:1|max:20',
+            'happy_clients'      => 'nullable|integer|min:0',
+            'years_experience'   => 'nullable|integer|min:0',
+            'default_theme'      => 'nullable|in:dark,light,red,gold,blue,purple',
         ]);
 
         $settings = [
@@ -37,7 +40,9 @@ class SettingsController extends Controller
             'delivery_time',
             'contact_email',
             'commission_slots',
-
+            'happy_clients',
+            'years_experience',
+            'default_theme',
         ];
 
         foreach ($settings as $key) {

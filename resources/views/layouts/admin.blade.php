@@ -49,6 +49,26 @@
                {{ request()->routeIs('admin.products.*') ? 'bg-purple-500/20 text-purple-300' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
                 📦 Productos
             </a>
+            <a href="{{ route('admin.discount-codes.index') }}"
+               class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition
+               {{ request()->routeIs('admin.discount-codes.*') ? 'bg-purple-500/20 text-purple-300' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
+                🎟️ Descuentos
+            </a>
+            <a href="{{ route('admin.process-steps.index') }}"
+               class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition
+               {{ request()->routeIs('admin.process-steps.*') ? 'bg-purple-500/20 text-purple-300' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
+                📋 Proceso
+            </a>
+            <a href="{{ route('admin.faqs.index') }}"
+               class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition
+               {{ request()->routeIs('admin.faqs.*') ? 'bg-purple-500/20 text-purple-300' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
+                ❓ FAQ
+            </a>
+            <a href="{{ route('admin.music-tracks.index') }}"
+               class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition
+               {{ request()->routeIs('admin.music-tracks.*') ? 'bg-purple-500/20 text-purple-300' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
+                🎵 Música
+            </a>
             <a href="{{ route('admin.settings.index') }}"
                class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition
                {{ request()->routeIs('admin.settings.*') ? 'bg-purple-500/20 text-purple-300' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">

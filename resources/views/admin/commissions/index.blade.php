@@ -18,6 +18,7 @@
                 <th class="text-left px-6 py-4">Cliente</th>
                 <th class="text-left px-6 py-4">Tipo</th>
                 <th class="text-left px-6 py-4">Estado</th>
+                <th class="text-left px-6 py-4">Prioridad</th>
                 <th class="text-left px-6 py-4">Precio</th>
                 <th class="text-left px-6 py-4">Fecha</th>
                 <th class="text-left px-6 py-4"></th>
@@ -40,6 +41,15 @@
                         @endif">
                         {{ $commission->status_label }}
                     </span>
+                </td>
+                <td class="px-6 py-4">
+                    <form action="{{ route('admin.commissions.togglePriority', $commission) }}" method="POST">
+                        @csrf
+                        <button type="submit" title="Toggle prioridad"
+                            class="text-lg transition {{ $commission->is_priority ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400' }}">
+                            ★
+                        </button>
+                    </form>
                 </td>
                 <td class="px-6 py-4 text-gray-400">
                     {{ $commission->price ? '$'.number_format($commission->price, 2) : '—' }}

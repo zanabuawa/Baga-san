@@ -80,6 +80,37 @@
             @error('contact_email') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
 
+        <hr class="border-white/10 my-6">
+        <h2 class="text-sm font-semibold text-gray-300 mb-4">Estadísticas visibles</h2>
+
+        <div class="grid grid-cols-2 gap-4 mb-5">
+            <div>
+                <label class="block text-xs text-gray-400 mb-2">Clientes satisfechos</label>
+                <input type="number" name="happy_clients" value="{{ old('happy_clients', $settings['happy_clients'] ?? '0') }}"
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500"
+                    placeholder="0" min="0">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-400 mb-2">Años de experiencia</label>
+                <input type="number" name="years_experience" value="{{ old('years_experience', $settings['years_experience'] ?? '0') }}"
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500"
+                    placeholder="0" min="0">
+            </div>
+        </div>
+
+        <hr class="border-white/10 my-6">
+        <h2 class="text-sm font-semibold text-gray-300 mb-4">Apariencia</h2>
+
+        <div class="mb-8">
+            <label class="block text-xs text-gray-400 mb-2">Tema predeterminado</label>
+            <select name="default_theme"
+                class="w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500">
+                @foreach(['dark' => 'Oscuro (Rosa)', 'light' => 'Claro', 'red' => 'Rojo', 'gold' => 'Dorado', 'blue' => 'Azul', 'purple' => 'Púrpura'] as $value => $label)
+                    <option value="{{ $value }}" {{ ($settings['default_theme'] ?? 'dark') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+        </div>
+
         <button type="submit"
             class="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-full font-medium hover:opacity-90 transition">
             Guardar configuración

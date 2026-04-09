@@ -13,10 +13,15 @@ use App\Http\Controllers\Admin\SocialLinkController;
 use App\Http\Controllers\Admin\ReferenceController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\DiscountCodeController;
+use App\Http\Controllers\Admin\ProcessStepController;
+use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\MusicTrackController;
 
 // ── Rutas públicas ──
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/contacto', [HomeController::class, 'contact'])->name('contacto.store');
+Route::post('/descuento/aplicar', [HomeController::class, 'applyDiscount'])->name('descuento.aplicar');
 
 // ── Rutas admin (protegidas) ──
 Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
@@ -45,6 +50,21 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
 
     Route::delete('references/{reference}', [ReferenceController::class, 'destroy'])->name('references.destroy');
     Route::resource('products', ProductController::class);
+
+    // Códigos de descuento
+    Route::resource('discount-codes', DiscountCodeController::class);
+
+    // Pasos del proceso
+    Route::resource('process-steps', ProcessStepController::class)->except(['show']);
+
+    // FAQ
+    Route::resource('faqs', FaqController::class)->except(['show']);
+
+    // Música
+    Route::resource('music-tracks', MusicTrackController::class)->except(['show']);
+
+    // Toggle prioridad en comisiones
+    Route::post('commissions/{commission}/toggle-priority', [CommissionController::class, 'togglePriority'])->name('commissions.togglePriority');
 });
 
 Route::get('/register', function() { abort(404); });

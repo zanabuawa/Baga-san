@@ -32,6 +32,13 @@
             @error('price') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
 
+        <div class="mb-5 flex items-center gap-3">
+            <input type="checkbox" name="is_priority" id="is_priority" value="1"
+                {{ $commission->is_priority ? 'checked' : '' }}
+                class="w-4 h-4 rounded accent-yellow-400">
+            <label for="is_priority" class="text-sm text-gray-400">Marcar como prioridad <span class="text-yellow-400">★</span></label>
+        </div>
+
         <div class="mb-8">
             <label class="block text-xs text-gray-400 mb-2">Notas internas</label>
             <textarea name="notes" rows="5"

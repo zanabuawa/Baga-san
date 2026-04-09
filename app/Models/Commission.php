@@ -14,12 +14,14 @@ class Commission extends Model
         'commission_type',
         'description',
         'status',
+        'is_priority',
         'price',
         'notes',
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
+        'price'       => 'decimal:2',
+        'is_priority' => 'boolean',
     ];
 
     public function getStatusLabelAttribute(): string

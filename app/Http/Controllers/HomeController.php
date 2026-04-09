@@ -7,6 +7,10 @@ use App\Models\PortfolioItem;
 use App\Models\SocialLink;
 use App\Models\CommissionPackage;
 use App\Models\Commission;
+use App\Models\DiscountCode;
+use App\Models\ProcessStep;
+use App\Models\Faq;
+use App\Models\MusicTrack;
 use App\Mail\ContactFormMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
@@ -52,6 +56,7 @@ class HomeController extends Controller
         $slots = (int) ($settings['commission_slots'] ?? 8);
 
         $inProgress = Commission::where('status', 'in_progress')
+            ->orderByDesc('is_priority')
             ->latest()
             ->take($slots)
             ->get();
@@ -71,6 +76,11 @@ class HomeController extends Controller
             ->get()
             ->groupBy('category_id');
 
+        $processSteps = ProcessStep::where('is_active', true)->orderBy('sort_order')->get();
+        $faqs         = Faq::where('is_active', true)->orderBy('sort_order')->get();
+        $musicTracks  = MusicTrack::where('is_active', true)->orderBy('sort_order')->get();
+        $portfolioCount = PortfolioItem::where('is_visible', true)->count();
+
         return view('home', compact(
             'settings',
             'portfolio',
@@ -81,10 +91,13 @@ class HomeController extends Controller
             'socialLinks',
             'inProgress',
             'availableSlots',
-            'products',
             'slots',
             'completedCommissions',
-            'totalCompleted'
+            'totalCompleted',
+            'processSteps',
+            'faqs',
+            'musicTracks',
+            'portfolioCount'
         ));
     }
 
@@ -131,5 +144,32 @@ class HomeController extends Controller
 
         return redirect()->route('home', '#contacto')
             ->with('success', '¡Mensaje enviado! Te contactaré pronto.');
+    }
+
+    public function applyDiscount(Request $request)
+    {
+        $request->validate([
+            'code'  => 'required|string',
+            'total' => 'required|numeric|min:0',
+        ]);
+
+        $code = DiscountCode::where('code', strtoupper(trim($request->code)))->first();
+
+        if (! $code || ! $code->isValid()) {
+            return response()->json([
+                'valid'   => false,
+                'message' => 'Código inválido o expirado.',
+            ]);
+        }
+
+        $discount = round($request->total * ($code->percentage / 100), 2);
+
+        return response()->json([
+            'valid'           => true,
+            'percentage'      => $code->percentage,
+            'discount_amount' => $discount,
+            'final_total'     => round($request->total - $discount, 2),
+            'message'         => "¡{$code->percentage}% de descuento aplicado!",
+        ]);
     }
 }
