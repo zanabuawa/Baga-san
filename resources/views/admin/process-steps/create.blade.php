@@ -36,13 +36,6 @@
             @error('description') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
 
-        <div class="mb-5">
-            <label class="block text-xs text-gray-400 mb-2">Orden</label>
-            <input type="number" name="sort_order" value="{{ old('sort_order', 0) }}"
-                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500"
-                min="0">
-        </div>
-
         <div class="mb-8 flex items-center gap-3">
             <input type="checkbox" name="is_active" id="is_active" value="1" checked
                 class="w-4 h-4 rounded accent-purple-500">

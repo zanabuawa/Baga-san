@@ -21,7 +21,7 @@ class SocialLinkController extends Controller
             'links.*.is_active' => 'boolean',
         ]);
 
-        $platforms = ['x', 'instagram', 'discord', 'paypal'];
+        $platforms = ['x', 'instagram', 'discord', 'paypal', 'whatsapp'];
 
         foreach ($platforms as $platform) {
             SocialLink::updateOrCreate(

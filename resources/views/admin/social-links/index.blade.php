@@ -8,7 +8,7 @@
     <form action="{{ route('admin.social-links.update') }}" method="POST">
         @csrf
 
-        @foreach(['x' => '𝕏  Twitter / X', 'instagram' => '📸  Instagram', 'discord' => '💬  Discord', 'paypal' => '💳  PayPal'] as $platform => $label)
+        @foreach(['x' => '𝕏  Twitter / X', 'instagram' => '📸  Instagram', 'discord' => '💬  Discord', 'paypal' => '💳  PayPal', 'whatsapp' => '💚  WhatsApp'] as $platform => $label)
         <div class="mb-6 pb-6 border-b border-white/5 last:border-0 last:mb-0 last:pb-0">
             <p class="text-sm font-medium mb-3">{{ $label }}</p>
             <div class="mb-3">

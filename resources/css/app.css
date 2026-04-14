@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+[x-cloak] { display: none !important; }
+
 /* ─── ANIMACIONES BASE ────────────────────────────────────────── */
 
 @keyframes blob {
@@ -34,8 +36,8 @@
 }
 
 @keyframes glow-pulse {
-    0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.3), 0 0 60px rgba(236, 72, 153, 0.1); }
-    50%       { box-shadow: 0 0 40px rgba(168, 85, 247, 0.6), 0 0 100px rgba(236, 72, 153, 0.3); }
+    0%, 100% { box-shadow: 0 0 20px color-mix(in srgb, var(--accent2) 30%, transparent), 0 0 60px color-mix(in srgb, var(--accent) 10%, transparent); }
+    50%       { box-shadow: 0 0 40px color-mix(in srgb, var(--accent2) 60%, transparent), 0 0 100px color-mix(in srgb, var(--accent) 30%, transparent); }
 }
 
 @keyframes gradient-shift {
@@ -91,6 +93,48 @@
     50%       { transform: translate(-50%, -50%) scale(1.2); opacity: 0.25; }
 }
 
+/* ─── BODY CON VARIABLES DE TEMA ─────────────────────────────── */
+
+body {
+    background-color: var(--bg-body, #030712);
+    color: var(--text-primary, #ffffff);
+    transition: background-color 0.5s ease, color 0.3s ease;
+}
+
+/* Light theme: cards y secciones */
+[data-theme="light"] .bg-gray-950,
+[data-theme="light"] body { background-color: var(--bg-body) !important; }
+
+[data-theme="light"] .bg-gray-900\/50,
+[data-theme="light"] .bg-gray-900 { background-color: rgba(220,228,236,0.6) !important; }
+
+[data-theme="light"] .bg-gray-800 { background-color: rgba(255,255,255,0.95) !important; border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .bg-gray-800\/50 { background-color: rgba(240,244,248,0.7) !important; }
+
+[data-theme="light"] .text-white { color: #111827 !important; }
+[data-theme="light"] .text-gray-400 { color: #6b7280 !important; }
+[data-theme="light"] .text-gray-500 { color: #9ca3af !important; }
+[data-theme="light"] .text-gray-600 { color: #d1d5db !important; }
+[data-theme="light"] .border-white\/5 { border-color: rgba(0,0,0,0.06) !important; }
+[data-theme="light"] .border-white\/10 { border-color: rgba(0,0,0,0.1) !important; }
+[data-theme="light"] .border-white\/20 { border-color: rgba(0,0,0,0.15) !important; }
+[data-theme="light"] .bg-grid-lines {
+    background-image:
+        linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+}
+
+/* Coloured themes: tint de fondo sutil en secciones */
+[data-theme="red"] .bg-gray-900\/50 { background-color: rgba(30,5,5,0.5) !important; }
+[data-theme="gold"] .bg-gray-900\/50 { background-color: rgba(30,20,0,0.5) !important; }
+[data-theme="blue"] .bg-gray-900\/50 { background-color: rgba(5,12,30,0.5) !important; }
+[data-theme="purple"] .bg-gray-900\/50 { background-color: rgba(15,5,30,0.5) !important; }
+
+[data-theme="red"] .bg-gray-800 { background-color: rgba(28,8,8,0.9) !important; }
+[data-theme="gold"] .bg-gray-800 { background-color: rgba(26,16,2,0.9) !important; }
+[data-theme="blue"] .bg-gray-800 { background-color: rgba(8,14,28,0.9) !important; }
+[data-theme="purple"] .bg-gray-800 { background-color: rgba(14,6,28,0.9) !important; }
+
 /* ─── BLOBS DE FONDO ─────────────────────────────────────────── */
 
 .bg-blob {
@@ -98,14 +142,15 @@
     border-radius: 50%;
     filter: blur(80px);
     pointer-events: none;
-    z-index: 0;
-    opacity: 0.35;
+    z-index: -1;
+    opacity: 0.9;
+    transition: background 0.6s ease;
 }
 
 .bg-blob-1 {
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(236, 72, 153, 0.4), rgba(168, 85, 247, 0.2));
+    background: radial-gradient(circle, var(--blob1, rgba(236,72,153,0.35)), var(--blob2, rgba(168,85,247,0.18)));
     top: -200px;
     right: -200px;
     animation: blob 18s ease-in-out infinite;
@@ -114,7 +159,7 @@
 .bg-blob-2 {
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.35), rgba(59, 130, 246, 0.15));
+    background: radial-gradient(circle, var(--blob3, rgba(139,92,246,0.30)), var(--blob4, rgba(59,130,246,0.14)));
     bottom: 10%;
     left: -150px;
     animation: blob2 22s ease-in-out infinite;
@@ -123,7 +168,7 @@
 .bg-blob-3 {
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, rgba(6, 182, 212, 0.2), rgba(168, 85, 247, 0.1));
+    background: radial-gradient(circle, var(--blob1, rgba(236,72,153,0.15)), var(--blob3, rgba(168,85,247,0.08)));
     top: 40%;
     right: 20%;
     animation: blob3 28s ease-in-out infinite;
@@ -138,7 +183,7 @@
     border-radius: 50%;
     background: radial-gradient(circle, rgba(168, 85, 247, 0.12), transparent 70%);
     pointer-events: none;
-    z-index: 1;
+    z-index: -1;
     transition: transform 0.08s ease-out, opacity 0.3s;
     animation: cursor-glow 3s ease-in-out infinite;
 }
@@ -233,7 +278,7 @@
     width: 100vw;
     height: 100vh;
     pointer-events: none;
-    z-index: 2;
+    z-index: -1;
     opacity: 0.6;
 }
 
@@ -283,4 +328,141 @@
         linear-gradient(rgba(168, 85, 247, 0.04) 1px, transparent 1px),
         linear-gradient(90deg, rgba(168, 85, 247, 0.04) 1px, transparent 1px);
     background-size: 60px 60px;
+}
+
+/* ─── BARRA SUPERIOR DE COLOR (THEME BAR) ────────────────────── */
+
+.theme-top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent));
+    background-size: 200% auto;
+    animation: gradient-shift 4s linear infinite;
+}
+
+/* ─── NAV MEJORADA ───────────────────────────────────────────── */
+
+.themed-nav {
+    background-color: var(--bg-nav, rgba(3,7,18,0.82));
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.themed-nav::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+    opacity: 0.35;
+    transition: opacity 0.3s ease;
+}
+
+.themed-nav.scrolled {
+    background-color: rgba(3, 7, 18, 0.95) !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4), 0 0 40px color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.themed-nav.scrolled::after {
+    opacity: 0.6;
+}
+
+/* Nav link con underline animado */
+.nav-link-accent {
+    position: relative;
+}
+
+.nav-link-accent::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    right: 50%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: left 0.25s ease, right 0.25s ease;
+}
+
+.nav-link-accent:hover::after {
+    left: 0;
+    right: 0;
+}
+
+/* ─── MOBILE NAV ─────────────────────────────────────────────── */
+
+.mobile-nav-menu {
+    position: fixed;
+    top: calc(3px + 65px);
+    left: 0;
+    right: 0;
+    background: rgba(3, 7, 18, 0.97);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    z-index: 49;
+    padding: 1.5rem;
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.mobile-nav-menu.open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ─── SECCIÓN SEPARADORES ────────────────────────────────────── */
+
+.section-divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 999px;
+    margin-bottom: 2rem;
+    opacity: 0.7;
+}
+
+/* ─── ACCENT TEXTO DINÁMICO ──────────────────────────────────── */
+
+.text-accent {
+    color: var(--accent);
+}
+
+.text-accent2 {
+    color: var(--accent2);
+}
+
+.border-accent {
+    border-color: var(--accent);
+}
+
+/* ─── CARD HOVER MEJORADO ────────────────────────────────────── */
+
+.card-glow:hover {
+    transform: translateY(-5px) scale(1.005);
+    box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent),
+        0 8px 30px color-mix(in srgb, var(--accent) 12%, transparent),
+        0 0 60px color-mix(in srgb, var(--accent2) 6%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent) !important;
+}
+
+/* ─── BOTÓN GRADIENTE ACENTO ─────────────────────────────────── */
+
+.btn-accent {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-accent:hover {
+    opacity: 0.9;
+    transform: scale(1.04);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 40%, transparent);
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Faq;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FaqController extends Controller
 {
@@ -31,7 +32,7 @@ class FaqController extends Controller
         Faq::create([
             'question'   => $request->question,
             'answer'     => $request->answer,
-            'sort_order' => $request->sort_order ?? 0,
+            'sort_order' => Faq::max('sort_order') + 1,
             'is_active'  => $request->boolean('is_active', true),
         ]);
 
@@ -69,5 +70,16 @@ class FaqController extends Controller
         $faq->delete();
         return redirect()->route('admin.faqs.index')
             ->with('success', 'Pregunta eliminada correctamente.');
+    }
+
+    public function reorder(Request $request)
+    {
+        $request->validate(['order' => 'required|array', 'order.*' => 'integer|exists:faqs,id']);
+        DB::transaction(function () use ($request) {
+            foreach ($request->order as $position => $id) {
+                Faq::where('id', $id)->update(['sort_order' => $position]);
+            }
+        });
+        return response()->json(['ok' => true]);
     }
 }

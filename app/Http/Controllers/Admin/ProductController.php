@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -38,7 +39,7 @@ class ProductController extends Controller
             'price'       => $request->price,
             'category_id' => $request->category_id,
             'is_active'   => $request->boolean('is_active', true),
-            'sort_order'  => $request->sort_order ?? 0,
+            'sort_order'  => Product::max('sort_order') + 1,
         ]);
 
         return redirect()->route('admin.products.index')
@@ -80,5 +81,16 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('admin.products.index')
             ->with('success', 'Producto eliminado correctamente.');
+    }
+
+    public function reorder(Request $request)
+    {
+        $request->validate(['order' => 'required|array', 'order.*' => 'integer|exists:products,id']);
+        DB::transaction(function () use ($request) {
+            foreach ($request->order as $position => $id) {
+                Product::where('id', $id)->update(['sort_order' => $position]);
+            }
+        });
+        return response()->json(['ok' => true]);
     }
 }

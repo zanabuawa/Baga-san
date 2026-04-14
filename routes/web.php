@@ -31,6 +31,15 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
 
     // Portafolio
     Route::resource('portfolio', PortfolioController::class);
+    Route::post('portfolio/reorder', [PortfolioController::class, 'reorder'])->name('portfolio.reorder');
+
+    // Reorder endpoints
+    Route::post('packages/reorder',      [PackageController::class,     'reorder'])->name('packages.reorder');
+    Route::post('products/reorder',      [ProductController::class,     'reorder'])->name('products.reorder');
+    Route::post('categories/reorder',    [CategoryController::class,    'reorder'])->name('categories.reorder');
+    Route::post('faqs/reorder',          [FaqController::class,         'reorder'])->name('faqs.reorder');
+    Route::post('process-steps/reorder', [ProcessStepController::class, 'reorder'])->name('process-steps.reorder');
+    Route::post('music-tracks/reorder',  [MusicTrackController::class,  'reorder'])->name('music-tracks.reorder');
 
     // Comisiones de clientes
     Route::resource('commissions', CommissionController::class);

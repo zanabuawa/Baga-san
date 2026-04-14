@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ProcessStep;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProcessStepController extends Controller
 {
@@ -33,7 +34,7 @@ class ProcessStepController extends Controller
             'title'       => $request->title,
             'description' => $request->description,
             'icon'        => $request->icon,
-            'sort_order'  => $request->sort_order ?? 0,
+            'sort_order'  => ProcessStep::max('sort_order') + 1,
             'is_active'   => $request->boolean('is_active', true),
         ]);
 
@@ -73,5 +74,16 @@ class ProcessStepController extends Controller
         $processStep->delete();
         return redirect()->route('admin.process-steps.index')
             ->with('success', 'Paso eliminado correctamente.');
+    }
+
+    public function reorder(Request $request)
+    {
+        $request->validate(['order' => 'required|array', 'order.*' => 'integer|exists:process_steps,id']);
+        DB::transaction(function () use ($request) {
+            foreach ($request->order as $position => $id) {
+                ProcessStep::where('id', $id)->update(['sort_order' => $position]);
+            }
+        });
+        return response()->json(['ok' => true]);
     }
 }

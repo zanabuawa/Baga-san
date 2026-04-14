@@ -24,4 +24,10 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function packages()
+    {
+        return $this->belongsToMany(CommissionPackage::class, 'commission_package_product')
+                    ->withPivot('quantity');
+    }
 }

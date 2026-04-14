@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
@@ -33,7 +34,7 @@ class CategoryController extends Controller
             'name'        => $request->name,
             'icon'        => $request->icon,
             'description' => $request->description,
-            'sort_order'  => $request->sort_order ?? 0,
+            'sort_order'  => Category::max('sort_order') + 1,
             'is_active'   => $request->boolean('is_active', true),
         ]);
 
@@ -73,5 +74,16 @@ class CategoryController extends Controller
         $category->delete();
         return redirect()->route('admin.categories.index')
             ->with('success', 'Categoría eliminada correctamente.');
+    }
+
+    public function reorder(Request $request)
+    {
+        $request->validate(['order' => 'required|array', 'order.*' => 'integer|exists:categories,id']);
+        DB::transaction(function () use ($request) {
+            foreach ($request->order as $position => $id) {
+                Category::where('id', $id)->update(['sort_order' => $position]);
+            }
+        });
+        return response()->json(['ok' => true]);
     }
 }

@@ -11,9 +11,9 @@
     <div class="relative z-10 max-w-6xl mx-auto w-full flex flex-col md:flex-row items-center gap-12">
         <div class="flex-1 max-w-xl">
             @if($settings['commissions_open'] === 'true')
-            <div class="inline-flex items-center gap-2 bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs font-medium px-4 py-2 rounded-full mb-6 badge-glow"
-                 style="animation-delay:0s">
-                <span class="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></span>
+            <div class="inline-flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-full mb-6 badge-glow"
+                 style="background: color-mix(in srgb, var(--accent) 12%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); color: var(--accent); animation-delay:0s">
+                <span class="w-2 h-2 rounded-full animate-pulse" style="background: var(--accent)"></span>
                 {{ $settings['commissions_status'] ?? 'Comisiones abiertas' }}
             </div>
             @else
@@ -61,10 +61,15 @@
                 <!-- Anillo medio decorativo -->
                 <div class="absolute inset-3 rounded-full" style="border: 1px dashed rgba(168,85,247,0.4); animation: spin-reverse 15s linear infinite;"></div>
                 <!-- Interior -->
-                <div class="absolute inset-1 rounded-full bg-gray-950 hero-avatar-glow flex items-center justify-center">
-                    <span class="text-9xl font-bold animated-gradient-text">
-                        {{ strtoupper(substr($settings['artist_name'] ?? 'A', 0, 1)) }}
-                    </span>
+                <div class="absolute inset-1 rounded-full bg-gray-950 hero-avatar-glow flex items-center justify-center overflow-hidden">
+                    @if(!empty($settings['logo_hero']))
+                        <img src="{{ Storage::url($settings['logo_hero']) }}" alt="{{ $settings['artist_name'] ?? '' }}"
+                            class="w-full h-full object-contain p-6">
+                    @else
+                        <span class="text-9xl font-bold animated-gradient-text">
+                            {{ strtoupper(substr($settings['artist_name'] ?? 'A', 0, 1)) }}
+                        </span>
+                    @endif
                 </div>
                 <!-- Puntos orbitales -->
                 <div class="absolute inset-0" style="animation: spin-slow 6s linear infinite;">
@@ -106,7 +111,7 @@
 <!-- PORTFOLIO -->
 <section id="portfolio" class="py-20 px-6 bg-gray-900/50" x-data="{ activeFilter: 'todos' }">
     <div class="max-w-6xl mx-auto">
-        <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest reveal">Trabajos</span>
+        <span class="text-accent text-xs font-semibold uppercase tracking-widest reveal">Trabajos</span>
         <h2 class="text-3xl font-bold mt-2 mb-4 reveal">Portafolio</h2>
         <p class="text-gray-400 mb-8 reveal">Una selección de mis trabajos más recientes.</p>
 
@@ -169,7 +174,7 @@
         }
     }">
     <div class="max-w-6xl mx-auto">
-        <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest">Herramienta</span>
+        <span class="text-accent text-xs font-semibold uppercase tracking-widest">Herramienta</span>
         <h2 class="text-3xl font-bold mt-2 mb-2">Previsualizador de emotes</h2>
         <p class="text-gray-400 mb-10">Sube tu imagen y mira cómo se ve en Twitch a diferentes tamaños.</p>
 
@@ -226,7 +231,7 @@
 <!-- PRECIOS -->
 <section id="precios" class="py-20 px-6">
     <div class="max-w-6xl mx-auto">
-        <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest reveal">Comisiones</span>
+        <span class="text-accent text-xs font-semibold uppercase tracking-widest reveal">Comisiones</span>
         <h2 class="text-3xl font-bold mt-2 mb-4 reveal">Precios y paquetes</h2>
         <p class="text-gray-400 mb-16 reveal">Elige el paquete que mejor se adapte a tus necesidades.</p>
 
@@ -234,21 +239,19 @@
         @foreach($categories as $category)
         @if($category->packages->isNotEmpty())
         <div class="mb-16">
-            <div class="flex items-center gap-3 mb-8">
+            <div class="flex flex-col items-center text-center mb-8">
                 @if($category->icon)
-                <span class="text-3xl">{{ $category->icon }}</span>
+                <span class="text-3xl mb-2">{{ $category->icon }}</span>
                 @endif
-                <div>
-                    <h3 class="text-2xl font-bold">{{ $category->name }}</h3>
-                    @if($category->description)
-                    <p class="text-gray-400 text-sm mt-1">{{ $category->description }}</p>
-                    @endif
-                </div>
+                <h3 class="text-2xl font-bold">{{ $category->name }}</h3>
+                @if($category->description)
+                <p class="text-gray-400 text-sm mt-1">{{ $category->description }}</p>
+                @endif
             </div>
 
-            <div class="grid md:grid-cols-3 gap-6 stagger">
+            <div class="flex flex-wrap justify-center gap-6 stagger">
                 @foreach($category->packages as $package)
-                <div class="reveal bg-gray-800 border rounded-2xl p-8 relative card-glow
+                <div class="reveal bg-gray-800 border rounded-2xl p-8 relative card-glow w-full md:w-80
                         {{ $package->is_featured ? 'border-purple-500/40 bg-gradient-to-b from-purple-500/10 to-transparent' : 'border-white/5' }}">
                     @if($package->is_featured)
                     <span class="absolute top-4 right-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-semibold px-3 py-1 rounded-full">Popular</span>
@@ -260,7 +263,16 @@
                     </div>
                     <p class="text-gray-500 text-xs mb-6">USD</p>
                     <ul class="space-y-2 mb-8">
-                        @foreach($package->features as $feature)
+                        @foreach($package->products as $product)
+                        <li class="flex items-center gap-2 text-sm text-gray-300">
+                            <span class="w-1.5 h-1.5 bg-purple-400 rounded-full flex-shrink-0"></span>
+                            @if($product->pivot->quantity > 1)
+                            <span class="text-purple-400 font-semibold">×{{ $product->pivot->quantity }}</span>
+                            @endif
+                            {{ $product->name }}
+                        </li>
+                        @endforeach
+                        @foreach($package->features ?? [] as $feature)
                         <li class="flex items-center gap-2 text-sm text-gray-400">
                             <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full flex-shrink-0"></span>
                             {{ $feature }}
@@ -268,12 +280,12 @@
                         @endforeach
                     </ul>
                     <button
-                        @click="addItem({{ $package->id }}, '{{ addslashes($package->name) }}', {{ $package->price }}, '{{ addslashes($category->name) }}')"
+                        @click="$store.modal.openWithPackage('{{ addslashes($package->name) }}', {{ $package->price }})"
                         class="w-full block text-center py-3 rounded-full text-sm font-medium transition cursor-pointer
                             {{ $package->is_featured
                                 ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:opacity-90'
                                 : 'border border-white/15 text-white hover:border-purple-400 hover:bg-purple-500/10' }}">
-                        + Agregar al pedido
+                        Solicitar paquete ✦
                     </button>
                 </div>
                 @endforeach
@@ -285,7 +297,7 @@
         {{-- Paquetes sin categoría --}}
         @if($packages->isNotEmpty())
         <div class="mb-16">
-            <div class="grid md:grid-cols-3 gap-6 stagger">
+            <div class="flex flex-wrap justify-center gap-6 stagger">
                 @foreach($packages as $package)
                 <div class="reveal bg-gray-800 border rounded-2xl p-8 relative card-glow
                     {{ $package->is_featured ? 'border-purple-500/40 bg-gradient-to-b from-purple-500/10 to-transparent' : 'border-white/5' }}">
@@ -299,7 +311,16 @@
                     </div>
                     <p class="text-gray-500 text-xs mb-6">USD</p>
                     <ul class="space-y-2 mb-8">
-                        @foreach($package->features as $feature)
+                        @foreach($package->products as $product)
+                        <li class="flex items-center gap-2 text-sm text-gray-300">
+                            <span class="w-1.5 h-1.5 bg-purple-400 rounded-full flex-shrink-0"></span>
+                            @if($product->pivot->quantity > 1)
+                            <span class="text-purple-400 font-semibold">×{{ $product->pivot->quantity }}</span>
+                            @endif
+                            {{ $product->name }}
+                        </li>
+                        @endforeach
+                        @foreach($package->features ?? [] as $feature)
                         <li class="flex items-center gap-2 text-sm text-gray-400">
                             <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full flex-shrink-0"></span>
                             {{ $feature }}
@@ -307,12 +328,12 @@
                         @endforeach
                     </ul>
                     <button
-                        @click="addItem({{ $package->id }}, '{{ addslashes($package->name) }}', {{ $package->price }}, 'General')"
+                        @click="$store.modal.openWithPackage('{{ addslashes($package->name) }}', {{ $package->price }})"
                         class="w-full block text-center py-3 rounded-full text-sm font-medium transition cursor-pointer
                             {{ $package->is_featured
                                 ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:opacity-90'
                                 : 'border border-white/15 text-white hover:border-purple-400 hover:bg-purple-500/10' }}">
-                        + Agregar al pedido
+                        Solicitar paquete ✦
                     </button>
                 </div>
                 @endforeach
@@ -325,117 +346,197 @@
 
 
 <!-- CALCULADORA -->
-<section id="calculadora" class="py-20 px-6 bg-gray-900/50" x-data="calculator()">
-    <div class="max-w-6xl mx-auto">
-        <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest reveal">Personalizado</span>
-        <h2 class="text-3xl font-bold mt-2 mb-4 reveal">Arma tu paquete</h2>
-        <p class="text-gray-400 mb-10 reveal">Selecciona los productos que necesitas y te calculamos el total al instante.</p>
+@php
+    $firstTabId = null;
+    foreach ($categories as $cat) {
+        if ($products->get($cat->id, collect())->isNotEmpty()) { $firstTabId = $cat->id; break; }
+    }
+    if (!$firstTabId && $products->get(null, collect())->isNotEmpty()) $firstTabId = 'other';
+@endphp
+<section id="calculadora" class="py-20 px-6 bg-gray-900/50"
+    x-data="calculator()"
+    x-init="activeTab = '{{ $firstTabId }}'">
+    <div class="max-w-7xl mx-auto">
+        <span class="text-accent text-xs font-semibold uppercase tracking-widest reveal">Personalizado</span>
+        <h2 class="text-3xl font-bold mt-2 mb-2 reveal">Arma tu paquete</h2>
+        <p class="text-gray-400 mb-10 reveal">Selecciona los productos que necesitas y calculamos el total al instante.</p>
 
-        <div class="grid md:grid-cols-2 gap-8">
+        <div class="flex gap-6 items-start" style="align-items:stretch">
 
-            <!-- Productos disponibles -->
-            <div>
-                @foreach($categories as $category)
-                    @php $catProducts = $products->get($category->id, collect()); @endphp
+            {{-- ── SIDEBAR DE CATEGORÍAS ────────────────────────────────────── --}}
+            <aside class="hidden lg:flex flex-col gap-1 w-52 flex-shrink-0 overflow-y-auto" style="height:480px;scrollbar-width:none">
+                @foreach($categories as $cat)
+                    @if($products->get($cat->id, collect())->isNotEmpty())
+                    <button
+                        @click="activeTab = '{{ $cat->id }}'"
+                        :class="activeTab === '{{ $cat->id }}'
+                            ? 'bg-white/10 text-white border-l-2 border-accent pl-3'
+                            : 'text-gray-400 hover:text-white hover:bg-white/5 pl-4'"
+                        class="flex items-center gap-2.5 w-full text-left py-2.5 pr-3 rounded-r-xl text-sm font-medium transition-all duration-200">
+                        <span class="text-base leading-none">{{ $cat->icon }}</span>
+                        <span class="truncate">{{ $cat->name }}</span>
+                    </button>
+                    @endif
+                @endforeach
+                @if($products->get(null, collect())->isNotEmpty())
+                <button
+                    @click="activeTab = 'other'"
+                    :class="activeTab === 'other'
+                        ? 'bg-white/10 text-white border-l-2 border-accent pl-3'
+                        : 'text-gray-400 hover:text-white hover:bg-white/5 pl-4'"
+                    class="flex items-center gap-2.5 w-full text-left py-2.5 pr-3 rounded-r-xl text-sm font-medium transition-all duration-200">
+                    <span class="text-base leading-none">✦</span>
+                    <span>Otros</span>
+                </button>
+                @endif
+
+                {{-- Divider + counter --}}
+                <div class="mt-4 pt-4 border-t border-white/10">
+                    <p class="text-xs text-gray-500 px-4">
+                        <span x-show="count > 0">
+                            <span class="text-accent font-semibold" x-text="count"></span> ítem(s) seleccionado(s)
+                        </span>
+                        <span x-show="count === 0" class="text-gray-600">Sin ítems aún</span>
+                    </p>
+                </div>
+            </aside>
+
+            {{-- ── MOBILE: pills horizontales ──────────────────────────────── --}}
+            <div class="lg:hidden w-full flex gap-2 overflow-x-auto pb-3 mb-2 -mx-1 px-1" style="scrollbar-width:none">
+                @foreach($categories as $cat)
+                    @if($products->get($cat->id, collect())->isNotEmpty())
+                    <button
+                        @click="activeTab = '{{ $cat->id }}'"
+                        :class="activeTab === '{{ $cat->id }}'
+                            ? 'bg-accent/20 text-white border-accent/60'
+                            : 'text-gray-400 border-white/10 hover:border-white/30'"
+                        class="flex items-center gap-1.5 flex-shrink-0 border px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200">
+                        {{ $cat->icon }} {{ $cat->name }}
+                    </button>
+                    @endif
+                @endforeach
+                @if($products->get(null, collect())->isNotEmpty())
+                <button
+                    @click="activeTab = 'other'"
+                    :class="activeTab === 'other' ? 'bg-accent/20 text-white border-accent/60' : 'text-gray-400 border-white/10 hover:border-white/30'"
+                    class="flex items-center gap-1.5 flex-shrink-0 border px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200">
+                    ✦ Otros
+                </button>
+                @endif
+            </div>
+
+            {{-- ── GRID DE PRODUCTOS ────────────────────────────────────────── --}}
+            <div class="flex-1 min-w-0 overflow-y-auto pr-1" style="height:480px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.08) transparent">
+                @foreach($categories as $cat)
+                    @php $catProducts = $products->get($cat->id, collect()); @endphp
                     @if($catProducts->isNotEmpty())
-                    <div class="mb-8">
-                        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">
-                            {{ $category->icon }} {{ $category->name }}
-                        </h3>
-                        <div class="space-y-3">
-                            @foreach($catProducts as $product)
-                            <div class="reveal bg-gray-800 border border-white/5 rounded-xl p-4 flex items-center justify-between hover:border-purple-500/30 transition">
-                                <div class="flex-1">
-                                    <p class="font-medium text-sm">{{ $product->name }}</p>
-                                    @if($product->description)
-                                    <p class="text-gray-400 text-xs mt-1">{{ $product->description }}</p>
-                                    @endif
-                                    <p class="text-purple-300 text-sm font-medium mt-1">${{ number_format($product->price, 2) }} USD</p>
-                                </div>
-                                <button
-                                    @click="addProduct({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }})"
-                                    class="ml-4 w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-white flex items-center justify-center hover:opacity-90 transition text-lg font-bold flex-shrink-0">
-                                    +
-                                </button>
+                    <div
+                        x-show="activeTab === '{{ $cat->id }}'"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 translate-y-2"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-100"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
+                        class="grid sm:grid-cols-2 gap-3">
+                        @foreach($catProducts as $product)
+                        <div class="bg-gray-800/80 border border-white/5 rounded-xl p-4 flex gap-4 items-start
+                                    hover:border-accent/40 hover:bg-gray-800 transition-all duration-200 group">
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-sm text-white leading-snug">{{ $product->name }}</p>
+                                @if($product->description)
+                                <p class="text-gray-400 text-xs mt-1 leading-relaxed line-clamp-2">{{ $product->description }}</p>
+                                @endif
+                                <p class="text-accent text-sm font-bold mt-2">${{ number_format($product->price, 2) }} <span class="text-gray-500 font-normal text-xs">USD</span></p>
                             </div>
-                            @endforeach
+                            <button
+                                @click="addProduct({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }})"
+                                class="flex-shrink-0 w-9 h-9 rounded-xl bg-white/5 border border-white/10 text-gray-400
+                                       group-hover:bg-accent/20 group-hover:border-accent/50 group-hover:text-white
+                                       flex items-center justify-center text-xl font-light transition-all duration-200 hover:scale-110">
+                                +
+                            </button>
                         </div>
+                        @endforeach
                     </div>
                     @endif
                 @endforeach
 
                 @php $sinCategoria = $products->get(null, collect()); @endphp
                 @if($sinCategoria->isNotEmpty())
-                <div class="mb-8">
-                    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Otros</h3>
-                    <div class="space-y-3">
-                        @foreach($sinCategoria as $product)
-                        <div class="reveal bg-gray-800 border border-white/5 rounded-xl p-4 flex items-center justify-between hover:border-purple-500/30 transition">
-                            <div class="flex-1">
-                                <p class="font-medium text-sm">{{ $product->name }}</p>
-                                @if($product->description)
-                                <p class="text-gray-400 text-xs mt-1">{{ $product->description }}</p>
-                                @endif
-                                <p class="text-purple-300 text-sm font-medium mt-1">${{ number_format($product->price, 2) }} USD</p>
-                            </div>
-                            <button
-                                @click="addProduct({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }})"
-                                class="ml-4 w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-white flex items-center justify-center hover:opacity-90 transition text-lg font-bold flex-shrink-0">
-                                +
-                            </button>
+                <div
+                    x-show="activeTab === 'other'"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-100"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    class="grid sm:grid-cols-2 gap-3">
+                    @foreach($sinCategoria as $product)
+                    <div class="bg-gray-800/80 border border-white/5 rounded-xl p-4 flex gap-4 items-start
+                                hover:border-accent/40 hover:bg-gray-800 transition-all duration-200 group">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-sm text-white leading-snug">{{ $product->name }}</p>
+                            @if($product->description)
+                            <p class="text-gray-400 text-xs mt-1 leading-relaxed line-clamp-2">{{ $product->description }}</p>
+                            @endif
+                            <p class="text-accent text-sm font-bold mt-2">${{ number_format($product->price, 2) }} <span class="text-gray-500 font-normal text-xs">USD</span></p>
                         </div>
-                        @endforeach
+                        <button
+                            @click="addProduct({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }})"
+                            class="flex-shrink-0 w-9 h-9 rounded-xl bg-white/5 border border-white/10 text-gray-400
+                                   group-hover:bg-accent/20 group-hover:border-accent/50 group-hover:text-white
+                                   flex items-center justify-center text-xl font-light transition-all duration-200 hover:scale-110">
+                            +
+                        </button>
                     </div>
+                    @endforeach
                 </div>
                 @endif
             </div>
 
-            <!-- Resumen del pedido -->
-            <div class="sticky top-24">
-                <div class="bg-gray-800 border border-white/5 rounded-2xl p-6">
-                    <h3 class="font-semibold mb-6 text-sm text-gray-400 uppercase tracking-widest">Tu pedido personalizado</h3>
+            {{-- ── RESUMEN DEL PEDIDO ───────────────────────────────────────── --}}
+            <div class="hidden lg:block w-80 flex-shrink-0" style="height:480px;overflow-y:auto;scrollbar-width:none">
+                <div class="bg-gray-800/90 border border-white/8 rounded-2xl p-6 backdrop-blur">
+                    <h3 class="font-semibold mb-1 text-sm text-gray-300 uppercase tracking-widest">Tu pedido</h3>
 
-                    <div x-show="items.length === 0" class="text-center py-8">
-                        <p class="text-gray-500 text-sm">Agrega productos para calcular tu total.</p>
+                    <div x-show="items.length === 0" class="text-center py-10">
+                        <div class="text-4xl mb-3 opacity-30">🛒</div>
+                        <p class="text-gray-500 text-xs">Agrega productos para calcular tu total.</p>
                     </div>
 
                     <div x-show="items.length > 0">
-                        <div class="space-y-3 mb-6">
+                        <div class="space-y-2.5 mb-5 max-h-52 overflow-y-auto pr-1" style="scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent">
                             <template x-for="item in items" :key="item.id">
-                                <div class="flex items-center justify-between border-b border-white/5 pb-3">
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium" x-text="item.name"></p>
-                                        <p class="text-purple-300 text-xs" x-text="'$' + item.price.toFixed(2) + ' c/u'"></p>
+                                <div class="flex items-center gap-3 py-2 border-b border-white/5">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs font-medium text-white truncate" x-text="item.name"></p>
+                                        <p class="text-gray-500 text-xs" x-text="'$' + item.price.toFixed(2) + ' c/u'"></p>
                                     </div>
-                                    <div class="flex items-center gap-2 ml-4">
+                                    <div class="flex items-center gap-1.5 flex-shrink-0">
                                         <button @click="decreaseQty(item.id)"
-                                            class="w-6 h-6 rounded-full border border-white/10 text-gray-400 hover:border-purple-400 hover:text-white transition text-xs flex items-center justify-center">
-                                            −
-                                        </button>
-                                        <span class="text-sm font-medium w-4 text-center" x-text="item.qty"></span>
+                                            class="w-5 h-5 rounded-full border border-white/10 text-gray-400 hover:border-accent/60 hover:text-white transition text-xs flex items-center justify-center">−</button>
+                                        <span class="text-xs font-bold w-4 text-center tabular-nums" x-text="item.qty"></span>
                                         <button @click="increaseQty(item.id)"
-                                            class="w-6 h-6 rounded-full border border-white/10 text-gray-400 hover:border-purple-400 hover:text-white transition text-xs flex items-center justify-center">
-                                            +
-                                        </button>
+                                            class="w-5 h-5 rounded-full border border-white/10 text-gray-400 hover:border-accent/60 hover:text-white transition text-xs flex items-center justify-center">+</button>
                                         <button @click="removeItem(item.id)"
-                                            class="w-6 h-6 rounded-full border border-red-500/20 text-red-400 hover:border-red-400 transition text-xs flex items-center justify-center ml-1">
-                                            ✕
-                                        </button>
+                                            class="w-5 h-5 rounded-full border border-red-500/20 text-red-400 hover:border-red-400 transition text-xs flex items-center justify-center ml-0.5">✕</button>
                                     </div>
                                 </div>
                             </template>
                         </div>
 
-                        <!-- CÓDIGO DE DESCUENTO -->
+                        {{-- Código de descuento --}}
                         <div class="mb-4">
                             <div class="flex gap-2">
                                 <input type="text" x-model="discountCode" placeholder="Código de descuento"
                                     @keydown.enter.prevent="applyDiscount()"
                                     :disabled="discountApplied"
-                                    class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white font-mono uppercase focus:outline-none focus:border-purple-500 disabled:opacity-50"
+                                    class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white font-mono uppercase focus:outline-none focus:border-purple-500 disabled:opacity-50"
                                     style="text-transform:uppercase">
                                 <button @click="applyDiscount()" :disabled="discountApplied || discountLoading"
-                                    class="px-3 py-2 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-medium hover:bg-purple-500/30 transition disabled:opacity-50">
+                                    class="px-3 py-2 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-medium hover:bg-purple-500/30 transition disabled:opacity-50 whitespace-nowrap">
                                     <span x-show="!discountLoading">Aplicar</span>
                                     <span x-show="discountLoading">...</span>
                                 </button>
@@ -444,34 +545,49 @@
                             <p x-show="discountError" x-text="discountError" class="text-red-400 text-xs mt-1"></p>
                         </div>
 
-                        <div class="border-t border-white/10 pt-4 mb-6">
-                            <div x-show="discountApplied" class="flex justify-between items-center mb-2">
-                                <span class="text-sm text-gray-400">Subtotal</span>
-                                <span class="text-sm text-gray-400" x-text="'$' + subtotal.toFixed(2)"></span>
+                        <div class="border-t border-white/10 pt-3 mb-5">
+                            <div x-show="discountApplied" class="flex justify-between items-center mb-1.5">
+                                <span class="text-xs text-gray-400">Subtotal</span>
+                                <span class="text-xs text-gray-400" x-text="'$' + subtotal.toFixed(2)"></span>
                             </div>
-                            <div x-show="discountApplied" class="flex justify-between items-center mb-2">
-                                <span class="text-sm text-emerald-400">Descuento</span>
-                                <span class="text-sm text-emerald-400" x-text="'−$' + discountAmount.toFixed(2)"></span>
+                            <div x-show="discountApplied" class="flex justify-between items-center mb-1.5">
+                                <span class="text-xs text-emerald-400">Descuento</span>
+                                <span class="text-xs text-emerald-400" x-text="'−$' + discountAmount.toFixed(2)"></span>
                             </div>
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between items-center mt-2">
                                 <span class="font-semibold text-sm">Total estimado</span>
-                                <span class="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent"
+                                <span class="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent tabular-nums"
                                     x-text="'$' + total.toFixed(2)"></span>
                             </div>
-                            <p class="text-gray-500 text-xs mt-2">El precio final puede variar según los detalles.</p>
+                            <p class="text-gray-600 text-xs mt-1">El precio final puede variar.</p>
                         </div>
 
-                        <a :href="'#contacto'"
-                            @click="setOrder()"
-                            class="block text-center bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-full font-medium hover:opacity-90 transition text-sm">
+                        <button type="button" @click="openModal()"
+                            class="w-full block text-center bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-full font-medium hover:opacity-90 transition text-sm">
                             Solicitar este paquete ✦
-                        </a>
-                        <button @click="items = []"
-                            class="w-full text-center text-gray-500 hover:text-red-400 text-xs mt-3 transition">
+                        </button>
+                        <button @click="items = []; resetDiscount()"
+                            class="w-full text-center text-gray-600 hover:text-red-400 text-xs mt-2.5 transition">
                             Limpiar selección
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        {{-- MOBILE: resumen flotante --}}
+        <div x-show="items.length > 0" x-transition
+            class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-gray-900/95 border-t border-white/10 backdrop-blur px-4 py-3">
+            <div class="flex items-center justify-between max-w-lg mx-auto">
+                <div>
+                    <p class="text-xs text-gray-400"><span class="font-bold text-white" x-text="count"></span> ítem(s)</p>
+                    <p class="text-lg font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent tabular-nums"
+                        x-text="'$' + total.toFixed(2) + ' USD'"></p>
+                </div>
+                <button type="button" @click="openModal()"
+                    class="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-5 py-2.5 rounded-full text-sm font-medium hover:opacity-90 transition">
+                    Solicitar ✦
+                </button>
             </div>
         </div>
     </div>
@@ -480,7 +596,7 @@
 <!-- COLA DE COMISIONES -->
 <section id="cola" class="py-20 px-6">
     <div class="max-w-6xl mx-auto">
-        <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest reveal">Cola</span>
+        <span class="text-accent text-xs font-semibold uppercase tracking-widest reveal">Cola</span>
         <h2 class="text-3xl font-bold mt-2 mb-4 reveal">Estado de comisiones</h2>
         <p class="text-gray-400 mb-10">
             {{ $inProgress->count() }} de {{ $slots }} espacios ocupados actualmente.
@@ -542,7 +658,7 @@
     <!-- CLIENTES SATISFECHOS -->
     <div class="border-t border-white/5 pt-16">
         <div class="text-center mb-10">
-            <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest">Clientes</span>
+            <span class="text-accent text-xs font-semibold uppercase tracking-widest">Clientes</span>
             <h3 class="text-2xl font-bold mt-2 mb-3">Gracias a cada uno de ustedes 💜</h3>
             <p class="text-gray-400 text-sm max-w-lg mx-auto">
                 Cada comisión es un proyecto especial. Gracias por confiar en mi arte.
@@ -580,7 +696,7 @@
 <section id="proceso" class="py-20 px-6 bg-gray-900/50">
     <div class="max-w-6xl mx-auto">
         <div class="text-center mb-14 reveal">
-            <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest">¿Cómo funciona?</span>
+            <span class="text-accent text-xs font-semibold uppercase tracking-widest">¿Cómo funciona?</span>
             <h2 class="text-3xl font-bold mt-2 mb-3">El proceso de trabajo</h2>
             <p class="text-gray-400 max-w-lg mx-auto">Simple, transparente y enfocado en tu visión.</p>
         </div>
@@ -611,7 +727,7 @@
 <section id="faq" class="py-20 px-6">
     <div class="max-w-3xl mx-auto">
         <div class="text-center mb-12 reveal">
-            <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest">Dudas</span>
+            <span class="text-accent text-xs font-semibold uppercase tracking-widest">Dudas</span>
             <h2 class="text-3xl font-bold mt-2 mb-3">Preguntas frecuentes</h2>
             <p class="text-gray-400">Todo lo que necesitas saber antes de hacer tu pedido.</p>
         </div>
@@ -649,7 +765,7 @@
             </span>
         </div>
         <div class="reveal">
-            <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest">Sobre mí</span>
+            <span class="text-accent text-xs font-semibold uppercase tracking-widest">Sobre mí</span>
             <h2 class="text-3xl font-bold mt-2 mb-6">Hola, soy {{ $settings['artist_name'] ?? '' }} 👋</h2>
             <p class="text-gray-400 leading-relaxed">{{ $settings['bio'] ?? '' }}</p>
         </div>
@@ -659,13 +775,14 @@
 <!-- CONTACTO -->
 <section id="contacto" class="py-20 px-6">
     <div class="max-w-6xl mx-auto">
-        <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest reveal">Contacto</span>
-        <h2 class="text-3xl font-bold mt-2 mb-10 reveal">¿Listo para tu comisión?</h2>
+        <span class="text-accent text-xs font-semibold uppercase tracking-widest reveal">Contacto</span>
+        <h2 class="text-3xl font-bold mt-2 mb-3 reveal">¿Tienes alguna pregunta?</h2>
+        <p class="text-gray-400 mb-10 reveal">Si quieres solicitar una comisión usa el botón en los paquetes. Este formulario es para dudas o consultas generales.</p>
 
         <div class="grid md:grid-cols-2 gap-12">
             <!-- Links sociales -->
             <div class="reveal">
-                <p class="text-gray-400 mb-6">Encuéntrame en mis redes o llena el formulario.</p>
+                <p class="text-gray-400 mb-6">También puedes encontrarme en mis redes.</p>
                 <div class="flex flex-col gap-3 stagger">
                     @foreach($socialLinks as $link)
                     <a href="{{ $link->url }}" target="_blank"
@@ -694,6 +811,12 @@
                             <path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42c.045 1.72-.534 3.503-2.068 4.596-1.678 1.19-3.912 1.377-5.878 1.377H11.5c-.524 0-.968.382-1.05.9l-1.179 7.468h3.44c.524 0 .968-.382 1.05-.9l.902-5.713c.082-.518.526-.9 1.05-.9h.637c3.979 0 7.093-1.617 8.003-6.293.38-1.98.116-3.595-.963-4.494a3.35 3.35 0 00-.169-.041z" />
                         </svg>
                         PayPal
+
+                        @elseif($link->platform === 'whatsapp')
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                        WhatsApp
                         @endif
 
                     </a>
@@ -702,108 +825,423 @@
             </div>
 
             <!-- Formulario -->
-            <form action="{{ route('contacto.store') }}" method="POST" enctype="multipart/form-data" class="reveal bg-gray-800 border border-white/5 rounded-2xl p-8 card-glow"> @csrf
+            <form action="{{ route('contacto.store') }}" method="POST" class="reveal bg-gray-800 border border-white/5 rounded-2xl p-8 card-glow"> @csrf
+                <input type="hidden" name="commission_type" value="Consulta general">
                 @if(session('success'))
-                <div class="bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-sm px-4 py-3 rounded-xl mb-4">
+                <div class="bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-sm px-4 py-3 rounded-xl mb-6">
                     {{ session('success') }}
                 </div>
                 @endif
-                <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="grid grid-cols-2 gap-4 mb-5">
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Nombre</label>
+                        <label class="block text-xs text-gray-400 mb-1.5">Nombre</label>
                         <input type="text" name="client_name" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500" placeholder="Tu nombre">
                     </div>
                     <div>
-                        <label class="block text-xs text-gray-400 mb-1">Email</label>
+                        <label class="block text-xs text-gray-400 mb-1.5">Email</label>
                         <input type="email" name="client_email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500" placeholder="tu@email.com">
                     </div>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-xs text-gray-400 mb-1">Tipo de comisión</label>
-                    <select name="commission_type" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500">
-                        <option value="">Selecciona una opción</option>
-                        <option value="emote">Emote sencillo</option>
-                        <option value="pack">Pack streamer</option>
-                        <option value="branding">Branding completo</option>
-                    </select>
-                </div>
                 <div class="mb-6">
-                    <label class="block text-xs text-gray-400 mb-1">Cuéntame sobre tu proyecto</label>
-                    <textarea name="description" rows="4" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500" placeholder="Describe tu personaje, colores, estilo..."></textarea>
+                    <label class="block text-xs text-gray-400 mb-1.5">Tu mensaje</label>
+                    <textarea name="description" rows="5" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500" placeholder="¿En qué puedo ayudarte?"></textarea>
                 </div>
-
-                <div class="mb-6">
-                    <label class="block text-xs text-gray-400 mb-1">Imágenes de referencia (opcional)</label>
-                    <input type="file" name="references[]" multiple accept="image/*"
-                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-400 focus:outline-none focus:border-purple-500">
-                    <p class="text-gray-500 text-xs mt-1">Puedes subir varias imágenes. JPG, PNG o WebP. Máx 2MB cada una.</p>
-                </div>
-
                 <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-full font-medium hover:opacity-90 transition">
-                    Enviar solicitud ✦
+                    Enviar mensaje
                 </button>
-
             </form>
         </div>
     </div>
 </section>
 
+{{-- ── MODAL DE PEDIDO ──────────────────────────────────────────────── --}}
+<div
+    x-data="{
+        clientName: '',
+        clientEmail: '',
+        clientMessage: '',
+        fileNames: [],
+        totalFileSize: 0,
+        get sizeOver() { return this.totalFileSize > 20 * 1024 * 1024; },
+        handleFiles(e) {
+            const f = Array.from(e.target.files);
+            this.fileNames = f.map(x => x.name);
+            this.totalFileSize = f.reduce((s, x) => s + x.size, 0);
+        },
+        send() {
+            const summary = $store.modal.orderSummaryText;
+            const full = summary + (this.clientMessage.trim() ? '\n\nMensaje:\n' + this.clientMessage.trim() : '');
+            this.$refs.descInput.value = full;
+            this.$refs.orderForm.submit();
+        }
+    }"
+    x-show="$store.modal.open"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4"
+    style="display:none"
+    @keydown.escape.window="$store.modal.close()">
+
+    {{-- Backdrop --}}
+    <div class="absolute inset-0 bg-gray-950/75 backdrop-blur-sm" @click="$store.modal.close()"></div>
+
+    {{-- Panel --}}
+    <div class="relative z-10 w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto
+                bg-gray-900 border-t sm:border border-white/10 sm:rounded-2xl shadow-2xl"
+         @click.stop
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+         x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100">
+
+        {{-- Header --}}
+        <div class="flex items-center justify-between px-10 py-7 border-b border-white/8 sticky top-0 bg-gray-900 z-10">
+            <div>
+                <h2 class="text-lg font-bold text-white">Solicitar comisión</h2>
+                <p class="text-gray-500 text-sm mt-0.5">Revisa tu pedido y completa los datos</p>
+            </div>
+            <button @click="$store.modal.close()"
+                class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-white transition">
+                ✕
+            </button>
+        </div>
+
+        {{-- Resumen del pedido --}}
+        <div class="px-10 py-8 border-b border-white/8">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Resumen del pedido</p>
+            <div class="space-y-3">
+                <template x-for="item in $store.modal.items" :key="item.name">
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0"></span>
+                            <span class="text-sm text-white truncate"
+                                  x-text="(item.qty > 1 ? '×' + item.qty + ' ' : '') + item.name"></span>
+                        </div>
+                        <span class="text-sm text-gray-300 tabular-nums flex-shrink-0"
+                              x-text="'$' + (item.price * item.qty).toFixed(2)"></span>
+                    </div>
+                </template>
+            </div>
+            <div class="mt-5 pt-4 border-t border-white/8 space-y-2">
+                <template x-if="$store.modal.discountAmt > 0">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-emerald-400">Descuento
+                            (<span x-text="$store.modal.discountCodeVal"></span>)
+                        </span>
+                        <span class="text-sm text-emerald-400 tabular-nums"
+                              x-text="'−$' + $store.modal.discountAmt.toFixed(2)"></span>
+                    </div>
+                </template>
+                <div class="flex justify-between items-center">
+                    <span class="font-semibold text-base">Total estimado</span>
+                    <span class="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent tabular-nums"
+                          x-text="'$' + $store.modal.totalVal.toFixed(2) + ' USD'"></span>
+                </div>
+                <p class="text-gray-600 text-xs">El precio final puede variar según los detalles.</p>
+            </div>
+        </div>
+
+        {{-- Formulario --}}
+        <form x-ref="orderForm" action="{{ route('contacto.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="commission_type" :value="$store.modal.commissionType">
+            <input type="hidden" name="description" x-ref="descInput">
+
+            <div class="px-10 py-8 space-y-7">
+
+                {{-- Nombre + Email --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">
+                            Nombre <span class="text-pink-400">*</span>
+                        </label>
+                        <input type="text" name="client_name" x-model="clientName" required
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition"
+                            placeholder="Tu nombre">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">
+                            Email <span class="text-pink-400">*</span>
+                        </label>
+                        <input type="email" name="client_email" x-model="clientEmail" required
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition"
+                            placeholder="tu@email.com">
+                    </div>
+                </div>
+
+                {{-- Mensaje --}}
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">
+                        Mensaje para el artista <span class="text-pink-400">*</span>
+                    </label>
+                    <textarea x-model="clientMessage" rows="6"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500 transition resize-none"
+                        placeholder="Describe tu personaje, colores, estilo, referencias de inspiración..."></textarea>
+                </div>
+
+                {{-- Imágenes de referencia --}}
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">
+                        Imágenes de referencia <span class="text-gray-600">(opcional)</span>
+                    </label>
+                    <label for="modal-ref-upload"
+                        :class="sizeOver ? 'border-red-500/50 bg-red-500/5' : 'border-white/15 bg-white/5 hover:border-purple-500/60 hover:bg-white/8'"
+                        class="flex flex-col items-center justify-center gap-3 w-full h-36 rounded-xl border-2 border-dashed cursor-pointer transition group">
+                        <svg class="w-6 h-6 text-gray-500 group-hover:text-purple-400 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                        </svg>
+                        <span class="text-sm text-gray-400 group-hover:text-white transition text-center px-6 truncate max-w-full"
+                              x-text="fileNames.length ? fileNames.length + ' archivo(s): ' + fileNames.join(', ') : 'Arrastra imágenes o haz clic para seleccionar'"></span>
+                        <input id="modal-ref-upload" type="file" name="references[]"
+                            multiple accept="image/*" class="hidden"
+                            @change="handleFiles($event)">
+                    </label>
+
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-xs text-gray-600">JPG, PNG, GIF o WebP · Máx. 20 MB en total (límite de correo)</span>
+                        <span x-show="totalFileSize > 0"
+                              :class="sizeOver ? 'text-red-400 font-semibold' : 'text-gray-500'"
+                              class="text-xs tabular-nums"
+                              x-text="(totalFileSize / (1024 * 1024)).toFixed(1) + ' MB'"></span>
+                    </div>
+
+                    <div x-show="sizeOver"
+                         x-transition
+                         class="mt-3 flex items-start gap-2.5 bg-red-500/10 border border-red-500/25 rounded-xl px-4 py-3">
+                        <span class="text-red-400 text-base leading-none flex-shrink-0 mt-0.5">⚠️</span>
+                        <p class="text-red-300 text-sm leading-relaxed">
+                            El total supera 20 MB, que es el límite para enviar por correo.
+                            Selecciona menos archivos o usa imágenes más pequeñas.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- Footer --}}
+            <div class="px-10 pb-10 flex gap-4 border-t border-white/8 pt-7">
+                <button type="button" @click="$store.modal.close()"
+                    class="flex-1 border border-white/10 text-gray-400 hover:text-white hover:border-white/30 py-3.5 rounded-full text-sm font-medium transition">
+                    Cancelar
+                </button>
+                <button type="button" @click="send()"
+                    :disabled="!clientName.trim() || !clientEmail.trim() || !clientMessage.trim() || sizeOver"
+                    class="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3.5 rounded-full text-sm font-medium hover:opacity-90 transition disabled:opacity-40 disabled:cursor-not-allowed">
+                    Enviar solicitud ✦
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @if($musicTracks->isNotEmpty())
 @push('music-player')
-<div x-data="{
-    tracks: {{ $musicTracks->map(fn($t) => ['title' => $t->title, 'url' => $t->url])->values()->toJson() }},
-    current: 0,
-    playing: false,
-    audio: null,
-    volume: 0.5,
-    init() {
-        this.audio = new Audio();
-        this.audio.volume = this.volume;
-        this.audio.addEventListener('ended', () => this.next());
-        const saved = localStorage.getItem('bagasan_vol');
-        if (saved) { this.volume = parseFloat(saved); this.audio.volume = this.volume; }
-    },
-    loadAndPlay(index) {
-        this.current = index;
-        this.audio.src = this.tracks[index].url;
-        this.audio.play().then(() => this.playing = true).catch(() => this.playing = false);
-    },
-    toggle() {
-        if (!this.audio.src || this.audio.src === window.location.href) {
-            this.loadAndPlay(this.current); return;
-        }
-        if (this.playing) { this.audio.pause(); this.playing = false; }
-        else { this.audio.play().then(() => this.playing = true); }
-    },
-    next() { this.loadAndPlay((this.current + 1) % this.tracks.length); },
-    prev() { this.loadAndPlay((this.current - 1 + this.tracks.length) % this.tracks.length); },
-    setVolume(v) { this.volume = v; this.audio.volume = v; localStorage.setItem('bagasan_vol', v); }
-}"
-    class="fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-md border-t border-white/5 px-6 py-3">
-    <div class="max-w-6xl mx-auto flex items-center gap-4">
-        <!-- Info -->
+{{-- ── REPRODUCTOR MULTI-PISTA ────────────────────────────────── --}}
+<div id="music-player"
+     x-data="multiPlayer({{ $musicTracks->map(fn($t) => ['id' => $t->id, 'title' => $t->title, 'url' => $t->audio_url])->values()->toJson() }})"
+     class="fixed bottom-0 left-0 right-0 z-[55]"
+     style="background: rgba(6,9,20,0.96); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.06);">
+
+    {{-- Línea de acento superior --}}
+    <div class="h-0.5 w-full" style="background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);"></div>
+
+    {{-- Barra compacta (siempre visible) --}}
+    <div class="px-4 py-2.5 flex items-center gap-3 max-w-7xl mx-auto">
+        {{-- Ícono + toggle panel --}}
+        <button @click="panelOpen = !panelOpen"
+            class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all"
+            :style="anyPlaying ? 'background: linear-gradient(135deg, var(--accent), var(--accent2));' : 'background: rgba(255,255,255,0.08);'"
+            title="Ver pistas">
+            <span class="text-sm" :class="anyPlaying ? 'animate-pulse' : ''">🎵</span>
+        </button>
+
+        {{-- Info pista activa --}}
         <div class="flex-1 min-w-0">
-            <p class="text-xs text-gray-400 truncate" x-text="'🎵 ' + tracks[current].title"></p>
+            <template x-if="anyPlaying">
+                <div>
+                    <p class="text-xs text-white font-medium truncate" x-text="activeTitles"></p>
+                    <p class="text-xs" style="color: var(--accent)">Reproduciendo</p>
+                </div>
+            </template>
+            <template x-if="!anyPlaying">
+                <p class="text-xs text-gray-500">Haz clic en una pista para reproducir</p>
+            </template>
         </div>
-        <!-- Controles -->
-        <div class="flex items-center gap-3">
-            <button @click="prev()" class="text-gray-400 hover:text-white transition text-lg">⏮</button>
-            <button @click="toggle()"
-                class="w-9 h-9 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-white flex items-center justify-center hover:opacity-90 transition">
-                <span x-text="playing ? '⏸' : '▶'"></span>
-            </button>
-            <button @click="next()" class="text-gray-400 hover:text-white transition text-lg">⏭</button>
-        </div>
-        <!-- Volumen -->
-        <div class="hidden md:flex items-center gap-2">
+
+        {{-- Volumen global --}}
+        <div class="hidden sm:flex items-center gap-2">
             <span class="text-gray-500 text-xs">🔉</span>
-            <input type="range" min="0" max="1" step="0.05" :value="volume"
-                @input="setVolume(parseFloat($event.target.value))"
-                class="w-20 accent-purple-500 cursor-pointer">
+            <input type="range" min="0" max="1" step="0.05" :value="globalVolume"
+                @input="setGlobalVolume(parseFloat($event.target.value))"
+                class="w-20 cursor-pointer" style="accent-color: var(--accent)">
+        </div>
+
+        {{-- Parar todo --}}
+        <button x-show="anyPlaying" @click="stopAll()" x-transition
+            class="text-xs text-gray-500 hover:text-red-400 transition px-2 py-1 rounded-lg hover:bg-red-500/10">
+            ⏹ Parar
+        </button>
+
+        {{-- Flecha panel --}}
+        <button @click="panelOpen = !panelOpen"
+            class="text-gray-500 hover:text-white transition text-xs px-1"
+            :title="panelOpen ? 'Cerrar' : 'Ver pistas'">
+            <span :class="panelOpen ? 'rotate-180' : ''" class="inline-block transition-transform duration-200">▲</span>
+        </button>
+    </div>
+
+    {{-- Panel expandido con todas las pistas --}}
+    <div x-show="panelOpen"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 translate-y-2"
+         class="border-t border-white/5 px-4 py-3 max-w-7xl mx-auto">
+        <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest font-semibold">Pistas · reproducción simultánea</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            <template x-for="track in tracks" :key="track.id">
+                <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
+                     :style="playing[track.id] ? 'background: color-mix(in srgb, var(--accent) 12%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);' : 'background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);'">
+                    {{-- Play/Pause --}}
+                    <button @click="toggle(track.id)"
+                        class="w-8 h-8 rounded-full shrink-0 flex items-center justify-center transition-all"
+                        :style="playing[track.id] ? 'background: linear-gradient(135deg, var(--accent), var(--accent2));' : 'background: rgba(255,255,255,0.08);'">
+                        <span class="text-xs" x-text="playing[track.id] ? '⏸' : '▶'"></span>
+                    </button>
+
+                    {{-- Título + equalizer --}}
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-medium truncate"
+                           :style="playing[track.id] ? 'color: var(--accent);' : 'color: #e5e7eb;'"
+                           x-text="track.title"></p>
+                        <template x-if="playing[track.id]">
+                            <div class="flex items-end gap-0.5 mt-1 h-3">
+                                <div class="w-0.5 rounded-sm animate-equalizer-1" style="background: var(--accent);"></div>
+                                <div class="w-0.5 rounded-sm animate-equalizer-2" style="background: var(--accent2);"></div>
+                                <div class="w-0.5 rounded-sm animate-equalizer-3" style="background: var(--accent);"></div>
+                                <div class="w-0.5 rounded-sm animate-equalizer-2" style="background: var(--accent2);"></div>
+                                <div class="w-0.5 rounded-sm animate-equalizer-1" style="background: var(--accent);"></div>
+                            </div>
+                        </template>
+                    </div>
+
+                    {{-- Volumen individual --}}
+                    <input type="range" min="0" max="1" step="0.05"
+                        :value="volumes[track.id] ?? 0.5"
+                        @input="setVolume(track.id, parseFloat($event.target.value))"
+                        class="w-14 cursor-pointer" style="accent-color: var(--accent2)"
+                        title="Volumen">
+                </div>
+            </template>
         </div>
     </div>
 </div>
+
+<script>
+function multiPlayer(tracks) {
+    return {
+        tracks,
+        audioInstances: {},
+        playing: {},
+        volumes: {},
+        globalVolume: 0.5,
+        panelOpen: false,
+
+        init() {
+            const savedVol = localStorage.getItem('bagasan_global_vol');
+            if (savedVol) this.globalVolume = parseFloat(savedVol);
+
+            tracks.forEach(t => {
+                this.playing[t.id] = false;
+                this.volumes[t.id] = this.globalVolume;
+            });
+        },
+
+        getAudio(id) {
+            if (!this.audioInstances[id]) {
+                const track = this.tracks.find(t => t.id === id);
+                if (!track) return null;
+                const a = new Audio(track.url);
+                a.volume = this.volumes[id] ?? this.globalVolume;
+                a.addEventListener('ended', () => { this.playing[id] = false; });
+                this.audioInstances[id] = a;
+            }
+            return this.audioInstances[id];
+        },
+
+        toggle(id) {
+            const a = this.getAudio(id);
+            if (!a) return;
+            if (this.playing[id]) {
+                a.pause();
+                this.playing[id] = false;
+            } else {
+                a.play().then(() => { this.playing[id] = true; }).catch(() => {});
+            }
+        },
+
+        stopAll() {
+            Object.keys(this.audioInstances).forEach(id => {
+                this.audioInstances[id].pause();
+                this.audioInstances[id].currentTime = 0;
+                this.playing[id] = false;
+            });
+        },
+
+        setVolume(id, v) {
+            this.volumes[id] = v;
+            if (this.audioInstances[id]) this.audioInstances[id].volume = v;
+        },
+
+        setGlobalVolume(v) {
+            this.globalVolume = v;
+            localStorage.setItem('bagasan_global_vol', v);
+            Object.keys(this.audioInstances).forEach(id => {
+                this.audioInstances[id].volume = v;
+                this.volumes[id] = v;
+            });
+        },
+
+        get anyPlaying() {
+            return Object.values(this.playing).some(v => v);
+        },
+
+        get activeTitles() {
+            return this.tracks
+                .filter(t => this.playing[t.id])
+                .map(t => t.title)
+                .join(' · ');
+        }
+    };
+}
+</script>
+
+<style>
+@keyframes equalizer-1 {
+    0%, 100% { height: 4px; }
+    50% { height: 12px; }
+}
+@keyframes equalizer-2 {
+    0%, 100% { height: 10px; }
+    33% { height: 3px; }
+    66% { height: 12px; }
+}
+@keyframes equalizer-3 {
+    0%, 100% { height: 7px; }
+    25% { height: 12px; }
+    75% { height: 3px; }
+}
+.animate-equalizer-1 { animation: equalizer-1 0.8s ease-in-out infinite; }
+.animate-equalizer-2 { animation: equalizer-2 1.1s ease-in-out infinite; }
+.animate-equalizer-3 { animation: equalizer-3 0.9s ease-in-out infinite; }
+</style>
 @endpush
 @endif

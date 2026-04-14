@@ -15,10 +15,12 @@
         <a href="{{ route('admin.categories.create') }}" class="text-purple-400 hover:text-purple-300 text-sm">Agregar la primera categoría →</a>
     </div>
 @else
+<p class="text-gray-500 text-sm mb-4">Arrastra las filas para cambiar el orden.</p>
 <div class="bg-gray-800 border border-white/5 rounded-2xl overflow-hidden">
     <table class="w-full text-sm">
         <thead>
             <tr class="text-gray-400 text-xs border-b border-white/5 bg-gray-900/50">
+                <th class="px-4 py-4 w-8"></th>
                 <th class="text-left px-6 py-4">Categoría</th>
                 <th class="text-left px-6 py-4">Descripción</th>
                 <th class="text-left px-6 py-4">Paquetes</th>
@@ -26,9 +28,10 @@
                 <th class="text-left px-6 py-4"></th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-white/5">
+        <tbody id="sortable-tbody" class="divide-y divide-white/5">
             @foreach($categories as $category)
-            <tr class="hover:bg-white/2 transition">
+            <tr class="hover:bg-white/2 transition" data-id="{{ $category->id }}">
+                <td class="px-4 py-4 text-gray-600 cursor-grab active:cursor-grabbing drag-handle select-none text-lg text-center">⠿</td>
                 <td class="px-6 py-4">
                     <div class="flex items-center gap-3">
                         @if($category->icon)
@@ -53,8 +56,7 @@
                             Editar
                         </a>
                         <form action="{{ route('admin.categories.destroy', $category) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
+                            @csrf @method('DELETE')
                             <button type="submit" onclick="return confirm('¿Eliminar esta categoría?')"
                                 class="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-gray-400 hover:text-red-400 hover:border-red-400 transition">
                                 ✕
@@ -67,6 +69,7 @@
         </tbody>
     </table>
 </div>
+@include('admin.partials.sortable-table', ['route' => route('admin.categories.reorder')])
 @endif
 
 @endsection

@@ -28,4 +28,11 @@ class CommissionPackage extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'commission_package_product')
+                    ->withPivot('quantity')
+                    ->orderBy('sort_order');
+    }
 }

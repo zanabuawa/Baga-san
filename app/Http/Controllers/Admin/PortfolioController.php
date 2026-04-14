@@ -7,6 +7,7 @@ use App\Models\PortfolioItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Category;
+use Illuminate\Support\Facades\DB;
 
 class PortfolioController extends Controller
 {
@@ -41,12 +42,14 @@ public function create()
 
         $imagePath = $request->file('image')->store('portfolio', 'public');
 
+        $nextOrder = PortfolioItem::max('sort_order') + 1;
+
         PortfolioItem::create([
             'title'       => $request->title,
             'description' => $request->description,
             'image_path'  => $imagePath,
             'category_id' => $request->category_id,
-            'sort_order'  => $request->sort_order ?? 0,
+            'sort_order'  => $nextOrder,
             'is_visible'  => $request->boolean('is_visible', true),
         ]);
 
@@ -79,12 +82,24 @@ public function create()
             'description' => $request->description,
             'image_path'  => $imagePath,
             'category_id' => $request->category_id,
-            'sort_order'  => $request->sort_order ?? 0,
             'is_visible'  => $request->boolean('is_visible', true),
         ]);
 
         return redirect()->route('admin.portfolio.index')
             ->with('success', 'Pieza actualizada correctamente.');
+    }
+
+    public function reorder(Request $request)
+    {
+        $request->validate(['order' => 'required|array', 'order.*' => 'integer|exists:portfolio_items,id']);
+
+        DB::transaction(function () use ($request) {
+            foreach ($request->order as $position => $id) {
+                PortfolioItem::where('id', $id)->update(['sort_order' => $position]);
+            }
+        });
+
+        return response()->json(['ok' => true]);
     }
 
     public function destroy(PortfolioItem $portfolio)

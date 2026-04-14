@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PageSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SettingsController extends Controller
 {
@@ -29,7 +30,25 @@ class SettingsController extends Controller
             'happy_clients'      => 'nullable|integer|min:0',
             'years_experience'   => 'nullable|integer|min:0',
             'default_theme'      => 'nullable|in:dark,light,red,gold,blue,purple',
+            'logo_hero'    => 'nullable|image|mimes:png,jpg,jpeg,gif,svg,webp|max:2048',
+            'logo_navbar'  => 'nullable|image|mimes:png,jpg,jpeg,gif,svg,webp|max:2048',
+            'logo_favicon' => 'nullable|mimes:png,jpg,jpeg,gif,svg,webp,ico|max:2048',
         ]);
+
+        // Manejar subida / borrado de cada logo
+        foreach (['logo_hero', 'logo_navbar', 'logo_favicon'] as $field) {
+            $removeKey = 'remove_' . $field;
+            if ($request->boolean($removeKey)) {
+                $old = PageSetting::where('key', $field)->value('value');
+                if ($old) Storage::disk('public')->delete($old);
+                PageSetting::updateOrCreate(['key' => $field], ['value' => null]);
+            } elseif ($request->hasFile($field) && $request->file($field)->isValid()) {
+                $old = PageSetting::where('key', $field)->value('value');
+                if ($old) Storage::disk('public')->delete($old);
+                $path = $request->file($field)->store('logos', 'public');
+                PageSetting::updateOrCreate(['key' => $field], ['value' => $path]);
+            }
+        }
 
         $settings = [
             'artist_name',

@@ -3,53 +3,74 @@
 @section('content')
 
 <div class="flex items-center gap-4 mb-8">
-    <a href="{{ route('admin.packages.index') }}" class="text-gray-400 hover:text-white transition">← Volver</a>
+    <a href="{{ route('admin.packages.index') }}" class="admin-back-btn">← Volver</a>
     <h1 class="text-2xl font-bold">Agregar paquete</h1>
 </div>
 
-<div class="max-w-2xl bg-gray-800 border border-white/5 rounded-2xl p-8">
+<div class="max-w-2xl admin-card p-8">
     <form action="{{ route('admin.packages.store') }}" method="POST">
         @csrf
 
-        <div class="mb-5">
-            <label class="block text-xs text-gray-400 mb-2">Nombre del paquete</label>
-            <input type="text" name="name" value="{{ old('name') }}"
-                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500"
+        <div class="admin-field">
+            <label class="admin-label">Nombre del paquete</label>
+            <input type="text" name="name" value="{{ old('name') }}" class="admin-input"
                 placeholder="Ej: Pack streamer">
-            @error('name') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+            @error('name') <p class="admin-error">{{ $message }}</p> @enderror
         </div>
 
-        <div class="mb-5">
-            <label class="block text-xs text-gray-400 mb-2">Descripción</label>
-            <textarea name="description" rows="2"
-                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500"
+        <div class="admin-field">
+            <label class="admin-label">Descripción</label>
+            <textarea name="description" rows="2" class="admin-input"
                 placeholder="Breve descripción del paquete">{{ old('description') }}</textarea>
-            @error('description') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+            @error('description') <p class="admin-error">{{ $message }}</p> @enderror
         </div>
 
-        <div class="mb-5">
-            <label class="block text-xs text-gray-400 mb-2">Precio (USD)</label>
+        <div class="admin-field">
+            <label class="admin-label">Precio (USD)</label>
             <input type="number" step="0.01" name="price" value="{{ old('price') }}"
-                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500"
-                placeholder="0.00">
-            @error('price') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                class="admin-input" placeholder="0.00">
+            @error('price') <p class="admin-error">{{ $message }}</p> @enderror
         </div>
 
-        <div class="mb-5">
-            <label class="block text-xs text-gray-400 mb-2">Características</label>
-            <textarea name="features" rows="5"
-                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500"
-                placeholder="Una característica por línea:
-5 emotes personalizados
-3 revisiones por emote
-Entrega en 10-14 días">{{ old('features') }}</textarea>
-            <p class="text-gray-500 text-xs mt-1">Escribe una característica por línea.</p>
-            @error('features') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+        {{-- Productos incluidos --}}
+        <div class="admin-field">
+            <label class="admin-label">Productos incluidos</label>
+            <div class="rounded-xl border border-white/10 bg-white/5 divide-y divide-white/5">
+                @forelse($products as $product)
+                <label class="flex items-center gap-4 px-4 py-3 cursor-pointer hover:bg-white/5 transition">
+                    <input type="checkbox" name="products[]" value="{{ $product->id }}"
+                        {{ in_array($product->id, old('products', [])) ? 'checked' : '' }}
+                        class="w-4 h-4 rounded accent-purple-500 flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <span class="text-sm text-white font-medium">{{ $product->name }}</span>
+                        <span class="text-xs text-gray-400 ml-2">${{ number_format($product->price, 2) }}</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs text-gray-500">Cant.</span>
+                        <input type="number" name="quantities[{{ $product->id }}]"
+                            value="{{ old("quantities.{$product->id}", 1) }}"
+                            min="1" max="99"
+                            class="w-14 bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-xs text-white text-center focus:outline-none focus:border-purple-500">
+                    </div>
+                </label>
+                @empty
+                <p class="px-4 py-3 text-sm text-gray-500">No hay productos activos. <a href="{{ route('admin.products.create') }}" class="text-purple-400 hover:underline">Crear producto</a></p>
+                @endforelse
+            </div>
+            @error('products') <p class="admin-error">{{ $message }}</p> @enderror
         </div>
-<div class="mb-5">
-            <label class="block text-xs text-gray-400 mb-2">Categoría</label>
-            <select name="category_id"
-                class="w-full bg-gray-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500">
+
+        {{-- Características extra (texto libre) --}}
+        <div class="admin-field">
+            <label class="admin-label">Características adicionales <span class="text-gray-600 font-normal">(opcional)</span></label>
+            <textarea name="features" rows="4" class="admin-input font-mono text-xs"
+                placeholder="Una por línea:&#10;3 revisiones por emote&#10;Entrega en 10–14 días&#10;PNG + PSD incluidos">{{ old('features') }}</textarea>
+            <p class="text-gray-600 text-xs mt-1">Para notas de entrega, revisiones u otras condiciones del paquete.</p>
+        </div>
+
+        <div class="admin-field">
+            <label class="admin-label">Categoría</label>
+            <select name="category_id" class="admin-input">
                 <option value="">Sin categoría</option>
                 @foreach($categories as $category)
                 <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
@@ -58,30 +79,21 @@ Entrega en 10-14 días">{{ old('features') }}</textarea>
                 @endforeach
             </select>
         </div>
-        <div class="mb-5">
-            <label class="block text-xs text-gray-400 mb-2">Orden</label>
-            <input type="number" name="sort_order" value="{{ old('sort_order', 0) }}"
-                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500">
+
+        <div class="flex items-center gap-6 mb-8">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" name="is_featured" id="is_featured" value="1"
+                    {{ old('is_featured') ? 'checked' : '' }} class="w-4 h-4 rounded accent-purple-500">
+                <span class="text-sm text-gray-400">Marcar como popular</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" name="is_active" id="is_active" value="1"
+                    {{ old('is_active', true) ? 'checked' : '' }} class="w-4 h-4 rounded accent-purple-500">
+                <span class="text-sm text-gray-400">Visible en la página pública</span>
+            </label>
         </div>
 
-        <div class="mb-4 flex items-center gap-3">
-            <input type="checkbox" name="is_featured" id="is_featured" value="1"
-                {{ old('is_featured') ? 'checked' : '' }}
-                class="w-4 h-4 rounded accent-purple-500">
-            <label for="is_featured" class="text-sm text-gray-400">Marcar como popular</label>
-        </div>
-
-        <div class="mb-8 flex items-center gap-3">
-            <input type="checkbox" name="is_active" id="is_active" value="1"
-                {{ old('is_active', true) ? 'checked' : '' }}
-                class="w-4 h-4 rounded accent-purple-500">
-            <label for="is_active" class="text-sm text-gray-400">Visible en la página pública</label>
-        </div>
-
-        <button type="submit"
-            class="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-full font-medium hover:opacity-90 transition">
-            Guardar paquete
-        </button>
+        <button type="submit" class="admin-btn-primary w-full">Guardar paquete</button>
     </form>
 </div>
 

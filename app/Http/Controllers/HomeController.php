@@ -39,13 +39,14 @@ class HomeController extends Controller
 
         $categories = Category::where('is_active', true)
             ->with(['packages' => function ($q) {
-                $q->where('is_active', true)->orderBy('sort_order');
+                $q->where('is_active', true)->orderBy('sort_order')->with('products');
             }])
             ->orderBy('sort_order')
             ->get();
 
         $packages = CommissionPackage::where('is_active', true)
             ->whereNull('category_id')
+            ->with('products')
             ->orderBy('sort_order')
             ->get();
 
@@ -108,7 +109,7 @@ class HomeController extends Controller
             'client_email'    => 'required|email',
             'commission_type' => 'required|string',
             'description'     => 'required|string',
-            'references.*'    => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'references.*'    => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
         $commission = Commission::create([

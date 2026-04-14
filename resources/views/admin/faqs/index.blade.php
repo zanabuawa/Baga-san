@@ -15,21 +15,22 @@
         <p class="text-gray-400">No hay preguntas frecuentes todavía.</p>
     </div>
 @else
+<p class="text-gray-500 text-sm mb-4">Arrastra las filas para cambiar el orden.</p>
 <div class="bg-gray-800 border border-white/5 rounded-2xl overflow-hidden">
     <table class="w-full text-sm">
         <thead>
             <tr class="text-gray-400 text-xs border-b border-white/5 bg-gray-900/50">
-                <th class="text-left px-6 py-4">Orden</th>
+                <th class="px-4 py-4 w-8"></th>
                 <th class="text-left px-6 py-4">Pregunta</th>
                 <th class="text-left px-6 py-4">Estado</th>
                 <th class="text-left px-6 py-4"></th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-white/5">
+        <tbody id="sortable-tbody" class="divide-y divide-white/5">
             @foreach($faqs as $faq)
-            <tr class="hover:bg-white/2 transition">
-                <td class="px-6 py-4 text-gray-400">{{ $faq->sort_order }}</td>
-                <td class="px-6 py-4 font-medium">{{ Str::limit($faq->question, 60) }}</td>
+            <tr class="hover:bg-white/2 transition" data-id="{{ $faq->id }}">
+                <td class="px-4 py-4 text-gray-600 cursor-grab active:cursor-grabbing drag-handle select-none text-lg text-center">⠿</td>
+                <td class="px-6 py-4 font-medium">{{ Str::limit($faq->question, 70) }}</td>
                 <td class="px-6 py-4">
                     @if($faq->is_active)
                         <span class="px-2 py-1 rounded-full text-xs bg-emerald-500/15 text-emerald-300">Visible</span>
@@ -44,8 +45,7 @@
                             Editar
                         </a>
                         <form action="{{ route('admin.faqs.destroy', $faq) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
+                            @csrf @method('DELETE')
                             <button type="submit" onclick="return confirm('¿Eliminar esta pregunta?')"
                                 class="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-gray-400 hover:text-red-400 hover:border-red-400 transition">
                                 ✕
@@ -58,6 +58,7 @@
         </tbody>
     </table>
 </div>
+@include('admin.partials.sortable-table', ['route' => route('admin.faqs.reorder')])
 @endif
 
 @endsection

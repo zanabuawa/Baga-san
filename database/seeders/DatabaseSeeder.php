@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\SocialLink;
 use App\Models\PageSetting;
-use App\Models\CommissionPackage;
 use App\Models\ProcessStep;
 use App\Models\Faq;
 
@@ -51,52 +50,10 @@ class DatabaseSeeder extends Seeder
             PageSetting::create(['key' => $key, 'value' => $value]);
         }
 
-        // Paquetes de comisiones
-        CommissionPackage::create([
-            'name'        => 'Emote sencillo',
-            'description' => 'Perfecto para streamers que están comenzando.',
-            'price'       => 8.00,
-            'features'    => [
-                '1 emote (28×28 / 56×56 / 112×112)',
-                '2 revisiones incluidas',
-                'Entrega en 5–7 días',
-                'Archivo PNG transparente',
-            ],
-            'is_featured' => false,
-            'is_active'   => true,
-            'sort_order'  => 1,
-        ]);
-
-        CommissionPackage::create([
-            'name'        => 'Pack streamer',
-            'description' => 'El favorito de mis clientes. Ahorra más por emote.',
-            'price'       => 35.00,
-            'features'    => [
-                '5 emotes personalizados',
-                '3 revisiones por emote',
-                'Entrega en 10–14 días',
-                'PNG + PSD (archivos fuente)',
-                '1 sub badge de regalo',
-            ],
-            'is_featured' => true,
-            'is_active'   => true,
-            'sort_order'  => 2,
-        ]);
-
-        CommissionPackage::create([
-            'name'        => 'Branding completo',
-            'description' => 'Para streamers que quieren una identidad visual sólida.',
-            'price'       => 80.00,
-            'features'    => [
-                '10 emotes + 5 badges',
-                'Overlay de stream',
-                'Pantallas de inicio/fin',
-                'Revisiones ilimitadas',
-                'Soporte post-entrega',
-            ],
-            'is_featured' => false,
-            'is_active'   => true,
-            'sort_order'  => 3,
+        // Productos y paquetes (via seeders dedicados)
+        $this->call([
+            ProductSeeder::class,
+            CommissionPackageSeeder::class,
         ]);
 
         // Pasos del proceso

@@ -15,10 +15,12 @@
         <a href="{{ route('admin.products.create') }}" class="text-purple-400 hover:text-purple-300 text-sm">Agregar el primero →</a>
     </div>
 @else
+<p class="text-gray-500 text-sm mb-4">Arrastra las filas para cambiar el orden.</p>
 <div class="bg-gray-800 border border-white/5 rounded-2xl overflow-hidden">
     <table class="w-full text-sm">
         <thead>
             <tr class="text-gray-400 text-xs border-b border-white/5 bg-gray-900/50">
+                <th class="px-4 py-4 w-8"></th>
                 <th class="text-left px-6 py-4">Producto</th>
                 <th class="text-left px-6 py-4">Categoría</th>
                 <th class="text-left px-6 py-4">Precio</th>
@@ -26,9 +28,10 @@
                 <th class="text-left px-6 py-4"></th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-white/5">
+        <tbody id="sortable-tbody" class="divide-y divide-white/5">
             @foreach($products as $product)
-            <tr class="hover:bg-white/2 transition">
+            <tr class="hover:bg-white/2 transition" data-id="{{ $product->id }}">
+                <td class="px-4 py-4 text-gray-600 cursor-grab active:cursor-grabbing drag-handle select-none text-lg text-center">⠿</td>
                 <td class="px-6 py-4">
                     <p class="font-medium">{{ $product->name }}</p>
                     @if($product->description)
@@ -55,8 +58,7 @@
                             Editar
                         </a>
                         <form action="{{ route('admin.products.destroy', $product) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
+                            @csrf @method('DELETE')
                             <button type="submit" onclick="return confirm('¿Eliminar este producto?')"
                                 class="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-gray-400 hover:text-red-400 hover:border-red-400 transition">
                                 ✕
@@ -69,6 +71,7 @@
         </tbody>
     </table>
 </div>
+@include('admin.partials.sortable-table', ['route' => route('admin.products.reorder')])
 @endif
 
 @endsection
